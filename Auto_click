@@ -1,0 +1,57 @@
+#version 1.0 
+
+import time
+from pynput.mouse import Controller, Button
+from pynput import keyboard
+import pyautogui as PY
+running = True
+AllowToStop = True
+T = 0.02 #sleep time
+clicking = False
+mouse = Controller() 
+
+print("press 1 to start:\npress esc to exit")
+
+def set_sleep():
+    I = 0
+    global T , clicking , AllowToSleep
+    clicking = False
+    AllowToSleep = False
+    I = float(input("set time sleep(number only):"))
+    T = I
+
+    print("press 1 to start:\npress esc to exit")
+    AllowToSleep = True
+
+def toggle_event(key):
+    if key == keyboard.KeyCode(char='1'): #Start_clicking
+        global clicking
+        clicking = not clicking
+        if clicking == True: 
+            print("Clicking!  ", end=("\r"))
+        elif clicking == False:
+            print("Break Time!", end=("\r"))
+
+    elif key == keyboard.Key.esc:
+        global running
+        running = False
+        print("Stop Working")
+        return False
+
+    elif key == keyboard.KeyCode(char='2'):
+        set_sleep()
+    elif key == keyboard.KeyCode(char='c'): #right click
+        PY.click()
+    elif key == keyboard.KeyCode(char='v'): #left_click
+        PY.rightClick() 
+        
+
+listener = keyboard.Listener(on_press=toggle_event) 
+listener.start()
+
+while running:
+    
+    if clicking:
+        mouse.click(Button.left, 1)
+    time.sleep(T)
+
