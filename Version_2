@@ -1,0 +1,67 @@
+import tkinter as tk
+import os
+import pyautogui as pg
+import pynput as pp
+from tkinter import messagebox
+
+
+running = True
+
+class Program:
+
+    #field
+    class Start_button:
+
+        def show_button(self, button):
+            position_x = button.winfo_width()
+            button.place(x=position_x, y=self.__y_position)
+
+        def hide_button(self, button):
+            button.place_forget()
+
+        def __init__(self, window) -> None:
+            self.__start_button = tk.Button(window, text="start")
+            self.__stop_button = tk.Button(window, text="stop")
+
+            self.__y_position = 100
+
+            self.__start_button.place()
+
+    def on_quit(self):
+        os._exit(os.X_OK)
+
+    def __init__(self) ->  None:
+
+        #field
+        self.__clicking = False
+
+        #window
+        self.root = tk.Tk()
+
+        self.start_button = self.Start_button(self.root)
+        
+        self.root.geometry("500x500")
+        self.root.title = "AutoClick_by_SKOT"
+        self.root.protocol("WM_DELETE_WINDOW", self.on_quit)
+        self.root.mainloop()
+
+def main():
+    global running
+    program = None
+    while(running):
+        try:
+            program = Program()
+        except Exception as e:
+            answer = messagebox.askquestion(title="Error Occur!",message=str(e)+"\nWant to restart?")
+            
+            if(program != None):
+                print("program is not null")
+                del program
+
+            if(answer == "no"):
+                running = False
+
+if __name__ == '__main__':
+    main()
+
+os._exit(os.X_OK)
