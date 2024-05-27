@@ -1,10 +1,8 @@
 import tkinter as tk
 import os
-import pyautogui as pg
 import pynput as pp
 import time as T
 import threading as TH
-from tkinter import messagebox
 
 class Program:
 
@@ -14,6 +12,7 @@ class Program:
         self.working = False
         self.clicking = False
         self.__delay = 0.01
+        self.km = False
 
         self.root = self.Window().root_getter()
         self.ss_button = self.SS_button(self)
@@ -48,9 +47,10 @@ class Program:
         def __init__(self, outer) -> None:
             self.__start_button = tk.Button(text="Start", command=lambda: self.toggle_button(self.__start_button))
             self.__working_label = tk.Label(text="Press 1 to start clicking")
+            self.__stat_label = tk.Label()
             self.__stop_button = tk.Button(text="Stop",command=lambda: self.toggle_button(self.__stop_button))
-            self.y_position = 20
-            self.label_y_position = 60
+            self.y_position = 50
+            self.label_y_position = 80
             self.program = outer
             self.__mouse = pp.mouse.Controller()
 
@@ -62,6 +62,7 @@ class Program:
         def toggle_button(self, button):
             if(not self.program.working):
                 self.program.working = True
+                self.stat_label_config("SLEEPING")
                 self.hide_button(button)
                 self.show_button(self.__stop_button)  
                 self.show_label(self.__working_label, self.label_y_position)
@@ -69,9 +70,11 @@ class Program:
             else:
                 self.program.clicking = False
                 self.program.working = False
+                self.program.__km = False
                 self.hide_button(button)
                 self.show_button(self.__start_button)       
                 self.__working_label.place_forget() 
+                self.__stat_label.place_forget()
 
         def hide_button(self, button):
             button.place_forget()
@@ -85,6 +88,7 @@ class Program:
 
             button.place(x=position_x)
 
+        #show label
         def show_label(self, label, y_position):
             label.place(y=y_position)
             label.update()
@@ -93,6 +97,10 @@ class Program:
             position_x = 500/2 - position_x/2
 
             label.place(x=position_x)
+
+        def stat_label_config(self,word):
+            self.__stat_label.config(text=f'current stat : {word}')
+            self.show_label(self.__stat_label, 20)
 
         #keyboard listener
         def keyboard_working(self, key):
@@ -103,6 +111,10 @@ class Program:
                 self.toggle_button(self.__stop_button)
             elif(key == pp.keyboard.KeyCode(char='1') or key == pp.keyboard.KeyCode(char='1')):
                 self.clicking_start()
+            elif((key == pp.keyboard.KeyCode(char='2') or key == pp.keyboard.KeyCode(char='/')) and self.program.working):
+                self.program.km = not self.program.km
+            elif((key == pp.keyboard.KeyCode(char='c') or key == pp.keyboard.KeyCode(char='แ')) and self.program.km):
+                self.__mouse.click(pp.mouse.Button.left, 1)
 
         def keyboard_listener(self):
             listener = pp.keyboard.Listener(on_press=self.keyboard_working)
@@ -118,10 +130,12 @@ class Program:
         def clicking_start(self):
             if(self.program.clicking):
                 self.program.clicking = False
+                self.stat_label_config("SLEEPING")
             else:
                 self.program.clicking = True
+                self.stat_label_config("CLICKING")
                 threading_working = TH.Thread(target=self.clicking_working)
-                threading_working.start() #clicking_check
+                threading_working.start()
 
 def main():
     open = Program()
